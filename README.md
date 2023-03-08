@@ -1,1 +1,1 @@
-# tic-tac-toe
+This is a game of tic tac toe in a browser.

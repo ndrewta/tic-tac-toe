@@ -1,0 +1,4 @@
+.vscode
+*.json
+.prettierignore
+node_modules

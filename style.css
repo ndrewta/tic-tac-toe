@@ -1,0 +1,17 @@
+#board {
+    border: solid;
+    width: 500px;
+    height: 500px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr)
+}
+
+#board > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: rgb(51, 49, 49) 1px solid;
+    font-size: 52px;
+}
