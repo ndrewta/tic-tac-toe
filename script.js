@@ -34,9 +34,10 @@ const gameBoard = (() => {
 
   // Event handler
   const _eventHandler = (e) => {
+    const event = e.target;
     arrayDOM.forEach((dom) => {
-      if (e.id == dom.id && !dom.hasChildNodes()) {
-        _updateVariables(e);
+      if (event.id === dom.id && !dom.hasChildNodes()) {
+        _updateVariables(event);
         _render(currentPlayerMarker, dom);
         _checkWinCondition();
         _switchPlayerMarker();
@@ -45,7 +46,13 @@ const gameBoard = (() => {
   };
 
   // Bind events
-  board.addEventListener("click", (e) => _eventHandler(e.target));
+  const _bindEvent = () => {
+    board.addEventListener("click", _eventHandler);
+  };
+  // Unbind events
+  const _unbindEvents = () => {
+    board.removeEventListener("click", _eventHandler);
+  };
 
   // Switch player turn
   const _switchPlayerMarker = () => {
@@ -92,24 +99,55 @@ const gameBoard = (() => {
 
     arrayList.forEach((arr) => {
       if (matchArrays(x, arr)) {
-        console.log("X WINS!");
+        _endGame(arr);
       }
       if (matchArrays(o, arr)) {
-        console.log("O WINS!");
+        _endGame(arr);
       }
     });
   };
 
-  // Render board
-  const _render = (currentPlayerMarker, dom) => {
-    const elem = document.createElement("p");
-    elem.textContent = currentPlayerMarker;
-    dom.appendChild(elem);
+  // Game start
+  const startGame = () => {
+    _bindEvent();
   };
-  return { setUpPlayers };
+
+  // Game end
+  const _endGame = (arr) => {
+    _render(undefined, undefined, arr);
+    console.log("Game end!");
+    _unbindEvents();
+  };
+
+  // Render board
+  const _render = (currentPlayerMarker, dom, arr) => {
+    const renderMarker = function (currentPlayerMarker, dom) {
+      const elem = document.createElement("p");
+      elem.textContent = currentPlayerMarker;
+      dom.appendChild(elem);
+    };
+
+    const highlightSquare = function (arr) {
+      console.log(`Winning squares: ${arr}`);
+      arr.forEach((i) => {
+        const id = i;
+        const elem = document.getElementById(id);
+        elem.setAttribute("class", "highlight");
+      });
+    };
+
+    if (currentPlayerMarker !== undefined && dom !== undefined) {
+      renderMarker(currentPlayerMarker, dom);
+    }
+    if (arr !== undefined) {
+      highlightSquare(arr);
+    }
+  };
+  return { setUpPlayers, startGame };
 })();
 
 const playerOne = Player("bob", "x");
 const playerTwo = Player("cat", "o");
 
 gameBoard.setUpPlayers(playerOne, playerTwo);
+gameBoard.startGame();
