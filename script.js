@@ -1,23 +1,13 @@
 const Player = (name, marker) => ({ name, marker });
 
 const gameBoard = (() => {
+  // Setup module variables
   let boardState = [];
   let x = [];
   let o = [];
-  let playerOneName;
-  let playerOneMarker;
-  let playerTwoName;
-  let playerTwoMarker;
-  let currentPlayerMarker;
-
-  // Setup player variables
-  const setUpPlayers = (playerOne, playerTwo) => {
-    playerOneName = playerOne.name;
-    playerOneMarker = playerOne.marker;
-    playerTwoName = playerTwo.name;
-    playerTwoMarker = playerTwo.marker;
-    _switchPlayerMarker();
-  };
+  let currentPlayer;
+  let playerOne;
+  let playerTwo;
 
   // Cache DOM
   const board = document.querySelector("#board");
@@ -38,8 +28,8 @@ const gameBoard = (() => {
     arrayDOM.forEach((dom) => {
       if (event.id === dom.id && !dom.hasChildNodes()) {
         _updateVariables(event);
-        _render(currentPlayerMarker, dom);
-        _checkWinCondition();
+        _render(currentPlayer, dom);
+        _checkBoardState();
         _switchPlayerMarker();
       }
     });
@@ -56,26 +46,27 @@ const gameBoard = (() => {
 
   // Switch player turn
   const _switchPlayerMarker = () => {
-    if (currentPlayerMarker == playerOneMarker) {
-      currentPlayerMarker = playerTwoMarker;
+    if (currentPlayer == playerOne) {
+      currentPlayer = playerTwo;
     } else {
-      currentPlayerMarker = playerOneMarker;
+      currentPlayer = playerOne;
     }
+    infoBoard.updateCurrentPlayer(currentPlayer);
   };
 
   // Update player and boardState variables
   const _updateVariables = (e) => {
-    const obj = { marker: currentPlayerMarker, square: e.id };
+    const obj = { marker: currentPlayer.marker, square: e.id };
     boardState.push(obj);
-    if (obj.marker == "x") {
+    if (obj.marker == "X") {
       x.push(obj.square);
     } else {
       o.push(obj.square);
     }
   };
 
-  // Check win combination
-  const _checkWinCondition = () => {
+  // Check for matching win combinations or tie
+  const _checkBoardState = () => {
     const topRow = ["tl", "tm", "tr"];
     const midRow = ["ml", "m", "mr"];
     const botRow = ["bl", "bm", "br"];
@@ -94,36 +85,62 @@ const gameBoard = (() => {
       crossLR,
       crossRL,
     ];
+
     const matchArrays = (playerArr, arr) =>
       arr.every((i) => playerArr.includes(i));
 
     arrayList.forEach((arr) => {
       if (matchArrays(x, arr)) {
         _endGame(arr);
+        console.log("X wins");
       }
       if (matchArrays(o, arr)) {
         _endGame(arr);
+        console.log("O wins");
+      }
+    });
+    if (boardState.length == 9) {
+      _endGame();
+      console.log("Game tie!");
+    }
+  };
+  // Reset board
+  const _resetBoard = () => {
+    boardState.length = 0;
+    x.length = 0;
+    o.length = 0;
+    arrayDOM.forEach((dom) => {
+      if (dom.hasChildNodes()) {
+        const child = dom.firstChild;
+        dom.removeChild(child);
+        dom.removeAttribute("class", "higlight");
       }
     });
   };
 
   // Game start
-  const startGame = () => {
+  const startGame = (firstPlayer, secondPlayer) => {
+    playerOne = firstPlayer;
+    playerTwo = secondPlayer;
+    currentPlayer = playerOne;
+    infoBoard.updateCurrentPlayer(currentPlayer);
+    _resetBoard();
     _bindEvent();
   };
 
   // Game end
   const _endGame = (arr) => {
-    _render(undefined, undefined, arr);
-    console.log("Game end!");
+    if (arr !== undefined) {
+      _render(undefined, undefined, arr);
+    }
     _unbindEvents();
   };
 
   // Render board
-  const _render = (currentPlayerMarker, dom, arr) => {
-    const renderMarker = function (currentPlayerMarker, dom) {
+  const _render = (currentPlayer, dom, arr) => {
+    const renderMarker = function (currentPlayer, dom) {
       const elem = document.createElement("p");
-      elem.textContent = currentPlayerMarker;
+      elem.textContent = currentPlayer.marker;
       dom.appendChild(elem);
     };
 
@@ -136,18 +153,61 @@ const gameBoard = (() => {
       });
     };
 
-    if (currentPlayerMarker !== undefined && dom !== undefined) {
-      renderMarker(currentPlayerMarker, dom);
+    if (currentPlayer !== undefined && dom !== undefined) {
+      renderMarker(currentPlayer, dom);
     }
     if (arr !== undefined) {
       highlightSquare(arr);
     }
   };
-  return { setUpPlayers, startGame };
+
+  return { startGame };
 })();
 
-const playerOne = Player("bob", "x");
-const playerTwo = Player("cat", "o");
+const infoBoard = (() => {
+  // Setup module variables
+  let playerOne;
+  let playerTwo;
 
-gameBoard.setUpPlayers(playerOne, playerTwo);
-gameBoard.startGame();
+  //Cache DOM
+  const btn = document.getElementById("start-btn");
+  const playerOneDom = document.getElementById("player-one");
+  const playerTwoDom = document.getElementById("player-two");
+  const currentPlayerDom = document.getElementById("current-player");
+
+  // Bind button event
+  const _bindBtn = () => {
+    btn.addEventListener("click", _startGame);
+  };
+
+  // Start game signal
+  const _startGame = () => {
+    gameBoard.startGame(playerOne, playerTwo);
+  };
+
+  // Setup players
+  const setUpPlayers = (firstPlayer, secondPlayer) => {
+    playerOne = firstPlayer;
+    playerTwo = secondPlayer;
+    _updatePlayerNames(playerOne, playerTwo);
+  };
+
+  // Update player names
+  const _updatePlayerNames = (playerOne, playerTwo) => {
+    playerOneDom.textContent = `Player 1: ${playerOne.name} (${playerOne.marker})`;
+    playerTwoDom.textContent = `Player 2: ${playerTwo.name} (${playerTwo.marker})`;
+  };
+
+  // Update current player
+  const updateCurrentPlayer = (currentPlayer) => {
+    currentPlayerDom.textContent = `Current player: ${currentPlayer.name}`;
+  };
+
+  _bindBtn();
+  return { setUpPlayers, updateCurrentPlayer };
+})();
+
+const playerOne = Player("Bob", "X");
+const playerTwo = Player("Cat", "O");
+
+infoBoard.setUpPlayers(playerOne, playerTwo);
