@@ -9,13 +9,50 @@
   </head>
   <body>
     <div class="wrapper">
+      <div id="announcement-wrapper">
+        <p id="announcement"></p>
+      </div>
       <div id="info">
         <div id="stats">
-          <p id="player-one"></p>
-          <p id="player-two"></p>
-          <button id="start-btn">Start game</button>
-
-          <p id="current-player"></p>
+          <div>
+            <p id="player-one"></p>
+          </div>
+          <div>
+            <p id="player-two"></p>
+          </div>
+          <div id="btn-wrapper">
+            <div>
+              <button id="newgame-btn">New game</button>
+            </div>
+            <div>
+              <button id="rename-btn">Rename players</button>
+            </div>
+          </div>
+        </div>
+        <div class="form">
+          <form>
+            <div>
+              <label for="player-one-name">Player 1: </label>
+              <input
+                type="text"
+                id="player-one-name"
+                name="player-one-name"
+                maxlength="20"
+              />
+            </div>
+            <div>
+              <label for="player-two-name">Player 2: </label>
+              <input
+                type="text"
+                id="player-two-name"
+                name="player-two-name"
+                maxlength="20"
+              />
+            </div>
+            <div>
+              <button id="startgame-btn">Start game</button>
+            </div>
+          </form>
         </div>
       </div>
       <div id="board">

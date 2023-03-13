@@ -29,8 +29,8 @@ const gameBoard = (() => {
       if (event.id === dom.id && !dom.hasChildNodes()) {
         _updateVariables(event);
         _render(currentPlayer, dom);
-        _checkBoardState();
         _switchPlayerMarker();
+        _checkBoardState();
       }
     });
   };
@@ -92,16 +92,16 @@ const gameBoard = (() => {
     arrayList.forEach((arr) => {
       if (matchArrays(x, arr)) {
         _endGame(arr);
-        console.log("X wins");
+        infoBoard.displayOutcome(playerOne);
       }
       if (matchArrays(o, arr)) {
         _endGame(arr);
-        console.log("O wins");
+        infoBoard.displayOutcome(playerTwo);
       }
     });
     if (boardState.length == 9) {
       _endGame();
-      console.log("Game tie!");
+      infoBoard.displayOutcome();
     }
   };
   // Reset board
@@ -170,44 +170,93 @@ const infoBoard = (() => {
   let playerTwo;
 
   //Cache DOM
-  const btn = document.getElementById("start-btn");
+  const newgameBtn = document.getElementById("newgame-btn");
+  const startgameBtn = document.getElementById("startgame-btn");
+  const renameBtn = document.getElementById("rename-btn");
   const playerOneDom = document.getElementById("player-one");
   const playerTwoDom = document.getElementById("player-two");
   const currentPlayerDom = document.getElementById("current-player");
+  const outcomeDom = document.getElementById("outcome");
+  const formDom = document.querySelector(".form");
+  const formElem = document.querySelector("form");
+  const announcementDom = document.getElementById("announcement");
 
   // Bind button event
   const _bindBtn = () => {
-    btn.addEventListener("click", _startGame);
+    newgameBtn.addEventListener("click", _newGame);
+    startgameBtn.addEventListener("click", (e) => _startGame(e));
+    renameBtn.addEventListener("click", _renamePlayers);
   };
 
-  // Start game signal
-  const _startGame = () => {
+  // Submit form and start game
+  const _startGame = (e) => {
+    _submitForm(e);
+    _resetInfo();
     gameBoard.startGame(playerOne, playerTwo);
   };
 
+  // New game
+  const _newGame = () => {
+    _resetInfo();
+    gameBoard.startGame(playerOne, playerTwo);
+  };
+
+  // Submit form
+  const _submitForm = (e) => {
+    e.preventDefault();
+    const data = new FormData(formElem);
+    const playerOneData = data.get("player-one-name");
+    const playerTwoData = data.get("player-two-name");
+    const playerOneObj = Player(playerOneData, "X");
+    const playerTwoObj = Player(playerTwoData, "O");
+    _setUpPlayers(playerOneObj, playerTwoObj);
+    _toggleForm();
+    formElem.reset();
+  };
+
   // Setup players
-  const setUpPlayers = (firstPlayer, secondPlayer) => {
+  const _setUpPlayers = (firstPlayer, secondPlayer) => {
     playerOne = firstPlayer;
     playerTwo = secondPlayer;
     _updatePlayerNames(playerOne, playerTwo);
   };
 
+  // Rename players
+  const _renamePlayers = () => {
+    _resetInfo();
+    _toggleForm();
+  };
+
   // Update player names
   const _updatePlayerNames = (playerOne, playerTwo) => {
-    playerOneDom.textContent = `Player 1: ${playerOne.name} (${playerOne.marker})`;
-    playerTwoDom.textContent = `Player 2: ${playerTwo.name} (${playerTwo.marker})`;
+    playerOneDom.textContent = `Player 1: ${playerOne.name}`;
+    playerTwoDom.textContent = `Player 2: ${playerTwo.name}`;
   };
 
   // Update current player
   const updateCurrentPlayer = (currentPlayer) => {
-    currentPlayerDom.textContent = `Current player: ${currentPlayer.name}`;
+    announcementDom.textContent = `${currentPlayer.name}'s turn!`;
+  };
+
+  // Display Winner
+  const displayOutcome = (winner) => {
+    if (winner) {
+      announcementDom.textContent = `${winner.name} is the winner!`;
+    } else {
+      announcementDom.textContent = "Game tie!";
+    }
+  };
+
+  // Reset infoboard
+  const _resetInfo = () => {
+    announcementDom.textContent = "";
+  };
+
+  // Toggle form
+  const _toggleForm = () => {
+    formDom.classList.toggle("toggle-form");
   };
 
   _bindBtn();
-  return { setUpPlayers, updateCurrentPlayer };
+  return { updateCurrentPlayer, displayOutcome };
 })();
-
-const playerOne = Player("Bob", "X");
-const playerTwo = Player("Cat", "O");
-
-infoBoard.setUpPlayers(playerOne, playerTwo);
