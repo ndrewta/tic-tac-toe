@@ -5,6 +5,7 @@ const gameBoard = (() => {
   let boardState = [];
   let x = [];
   let o = [];
+  let tie = true;
   let currentPlayer;
   let playerOne;
   let playerTwo;
@@ -91,15 +92,17 @@ const gameBoard = (() => {
 
     arrayList.forEach((arr) => {
       if (matchArrays(x, arr)) {
+        tie = false;
         _endGame(arr);
         infoBoard.displayOutcome(playerOne);
       }
       if (matchArrays(o, arr)) {
+        tie = false;
         _endGame(arr);
         infoBoard.displayOutcome(playerTwo);
       }
     });
-    if (boardState.length == 9) {
+    if (boardState.length == 9 && tie === true) {
       _endGame();
       infoBoard.displayOutcome();
     }
@@ -109,6 +112,7 @@ const gameBoard = (() => {
     boardState.length = 0;
     x.length = 0;
     o.length = 0;
+    tie = true;
     arrayDOM.forEach((dom) => {
       if (dom.hasChildNodes()) {
         const child = dom.firstChild;
@@ -145,7 +149,6 @@ const gameBoard = (() => {
     };
 
     const highlightSquare = function (arr) {
-      console.log(`Winning squares: ${arr}`);
       arr.forEach((i) => {
         const id = i;
         const elem = document.getElementById(id);
@@ -225,6 +228,7 @@ const infoBoard = (() => {
   const _renamePlayers = () => {
     _resetInfo();
     _toggleForm();
+    announcementDom.textContent = "Tic Tac Toe";
   };
 
   // Update player names

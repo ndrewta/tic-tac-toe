@@ -1,3 +1,12 @@
+@font-face {
+  font-family: fantasque;
+  src: url(../fonts/FantasqueSansMono-Regular.ttf);
+}
+
+:root {
+  font-family: fantasque, Arial, Helvetica, sans-serif;
+}
+
 .wrapper {
   margin-top: 200px;
   display: grid;
@@ -9,41 +18,52 @@
 }
 
 #announcement-wrapper {
-  border: dotted orange;
-  width: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: double 8px rgb(161, 216, 182);
+  background-color: azure;
+  margin-left: -19px;
+  margin-bottom: -18px;
+  z-index: 2;
+  box-shadow: 3px 0 5px grey;
+  width: 789px;
+  height: 50px;
   justify-self: center;
   align-self: center;
   grid-row: 1 / 2;
   grid-column: 1 / 3;
-}
-
-#announcement {
-  text-align: center;
   font-size: 50px;
-  margin: 0;
 }
 
 #board {
   grid-row: 2 /3;
   grid-column: 2 /3;
-  border: solid;
+  border: solid 3px rgb(185, 185, 185);
   width: 500px;
   height: 500px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
+  box-shadow: 3px 3px 5px grey;
+  background-color: rgb(250, 242, 231);
+  z-index: 1;
 }
 
 #board > div {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: rgb(51, 49, 49) 1px solid;
+  border: solid 1px rgb(185, 185, 185);
   font-size: 52px;
 }
 
-.highlight {
-  background-color: rgb(241, 189, 92);
+#board > div:hover {
+  background-color: rgb(235, 215, 179);
+}
+
+#board > div:active {
+  background-color: rgb(238, 235, 230);
 }
 
 #info {
@@ -53,7 +73,6 @@
   width: 300px;
   height: 500px;
   font-size: 25px;
-  margin-right: 5px;
 }
 #stats {
   display: grid;
@@ -62,9 +81,24 @@
   height: 500px;
   justify-content: center;
   align-items: center;
-  border: solid rgb(240, 12, 12);
+  border: solid 3px rgb(185, 185, 185);
+  background-color: rgb(213, 214, 243);
+  box-shadow: 0 3px 5px grey;
 }
 
+#stats > div p {
+  margin-top: 41px;
+  margin-left: 3px;
+}
+
+#stats > div:nth-child(2) p {
+  margin-top: 16px;
+  margin-left: 3px;
+}
+
+#stats > div:nth-child(3) {
+  margin-top: -6px;
+}
 #btn-wrapper {
   display: flex;
   flex-direction: column;
@@ -78,23 +112,34 @@
   justify-content: center;
   align-items: center;
   width: 300px;
-  height: 502px;
-  top: 2px;
+  height: 500px;
+  top: 3px;
   left: 3px;
   opacity: 1;
-  background-color: rgb(219, 207, 207);
+  background-color: rgb(213, 214, 243);
 }
-form > div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 25px;
+form {
+  display: grid;
+  margin-top: -220px;
+  gap: 50px;
 }
 
+form > div {
+  display: flex;
+  align-self: center;
+  justify-self: center;
+}
 input {
   padding: 3px;
   width: 150px;
   font-size: 15px;
+  border-radius: 10px;
+  margin-left: 5px;
+  border: 2px solid rgb(198, 189, 248);
+}
+
+input:focus {
+  outline-color: rgb(177, 208, 233);
 }
 
 button {
@@ -102,9 +147,20 @@ button {
   padding: 5px;
   border-radius: 10px;
   width: 260px;
+  border-color: rgb(124, 127, 202);
+  background-color: rgb(214, 231, 241);
+  box-shadow: 2px 2px rgb(150, 148, 148);
+}
+
+button:active {
+  background-color: rgb(165, 188, 202);
 }
 
 .toggle-form {
   opacity: 0;
   pointer-events: none;
+}
+
+.highlight {
+  background-color: rgb(182, 238, 144);
 }
