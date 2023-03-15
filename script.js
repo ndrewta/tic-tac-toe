@@ -21,12 +21,12 @@ const gameBoard = (() => {
   const bl = document.querySelector("#bl");
   const bm = document.querySelector("#bm");
   const br = document.querySelector("#br");
-  const arrayDOM = [tl, tm, tr, ml, m, mr, bl, bm, br];
+  const arrayDom = [tl, tm, tr, ml, m, mr, bl, bm, br];
 
   // Event handler
   const _eventHandler = (e) => {
     const event = e.target;
-    arrayDOM.forEach((dom) => {
+    arrayDom.forEach((dom) => {
       if (event.id === dom.id && !dom.hasChildNodes()) {
         _updateVariables(event);
         _render(currentPlayer, dom);
@@ -49,10 +49,12 @@ const gameBoard = (() => {
   const _switchPlayerMarker = () => {
     if (currentPlayer == playerOne) {
       currentPlayer = playerTwo;
+      infoBoard.updateCurrentPlayer(currentPlayer);
+      _aiMove();
     } else {
       currentPlayer = playerOne;
+      infoBoard.updateCurrentPlayer(currentPlayer);
     }
-    infoBoard.updateCurrentPlayer(currentPlayer);
   };
 
   // Update player and boardState variables
@@ -107,13 +109,14 @@ const gameBoard = (() => {
       infoBoard.displayOutcome();
     }
   };
+
   // Reset board
   const _resetBoard = () => {
     boardState.length = 0;
     x.length = 0;
     o.length = 0;
     tie = true;
-    arrayDOM.forEach((dom) => {
+    arrayDom.forEach((dom) => {
       if (dom.hasChildNodes()) {
         const child = dom.firstChild;
         dom.removeChild(child);
@@ -164,6 +167,31 @@ const gameBoard = (() => {
     }
   };
 
+  // AI logic
+  const _aiMove = () => {
+    let arrayIndex;
+
+    function generateIndex() {
+      let index;
+      index = Math.floor(Math.random() * 9);
+      arrayIndex = arrayDom[index];
+    }
+
+    function click() {
+      arrayIndex.click();
+    }
+
+    function run() {
+      generateIndex();
+      if (!arrayIndex.hasChildNodes()) {
+        click();
+      } else {
+        run();
+      }
+    }
+
+    setTimeout(run, 1500);
+  };
   return { startGame };
 })();
 
@@ -178,8 +206,6 @@ const infoBoard = (() => {
   const renameBtn = document.getElementById("rename-btn");
   const playerOneDom = document.getElementById("player-one");
   const playerTwoDom = document.getElementById("player-two");
-  const currentPlayerDom = document.getElementById("current-player");
-  const outcomeDom = document.getElementById("outcome");
   const formDom = document.querySelector(".form");
   const formElem = document.querySelector("form");
   const announcementDom = document.getElementById("announcement");
