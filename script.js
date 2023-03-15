@@ -9,6 +9,8 @@ const gameBoard = (() => {
   let currentPlayer;
   let playerOne;
   let playerTwo;
+  let gameActive = false;
+  let aiActive = true;
 
   // Cache DOM
   const board = document.querySelector("#board");
@@ -30,8 +32,8 @@ const gameBoard = (() => {
       if (event.id === dom.id && !dom.hasChildNodes()) {
         _updateVariables(event);
         _render(currentPlayer, dom);
-        _switchPlayerMarker();
         _checkBoardState();
+        _switchPlayerMarker();
       }
     });
   };
@@ -41,19 +43,23 @@ const gameBoard = (() => {
     board.addEventListener("click", _eventHandler);
   };
   // Unbind events
-  const _unbindEvents = () => {
+  const _unbindEvent = () => {
     board.removeEventListener("click", _eventHandler);
   };
 
   // Switch player turn
   const _switchPlayerMarker = () => {
-    if (currentPlayer == playerOne) {
-      currentPlayer = playerTwo;
-      infoBoard.updateCurrentPlayer(currentPlayer);
-      _aiMove();
-    } else {
-      currentPlayer = playerOne;
-      infoBoard.updateCurrentPlayer(currentPlayer);
+    if (gameActive) {
+      if (currentPlayer == playerOne) {
+        currentPlayer = playerTwo;
+        infoBoard.updateCurrentPlayer(currentPlayer);
+        if (aiActive) {
+          _aiMove();
+        }
+      } else {
+        currentPlayer = playerOne;
+        infoBoard.updateCurrentPlayer(currentPlayer);
+      }
     }
   };
 
@@ -130,6 +136,7 @@ const gameBoard = (() => {
     playerOne = firstPlayer;
     playerTwo = secondPlayer;
     currentPlayer = playerOne;
+    gameActive = true;
     infoBoard.updateCurrentPlayer(currentPlayer);
     _resetBoard();
     _bindEvent();
@@ -140,7 +147,8 @@ const gameBoard = (() => {
     if (arr !== undefined) {
       _render(undefined, undefined, arr);
     }
-    _unbindEvents();
+    gameActive = false;
+    _unbindEvent();
   };
 
   // Render board
@@ -170,6 +178,7 @@ const gameBoard = (() => {
   // AI logic
   const _aiMove = () => {
     let arrayIndex;
+    let clicked = false;
 
     function generateIndex() {
       let index;
@@ -179,18 +188,24 @@ const gameBoard = (() => {
 
     function click() {
       arrayIndex.click();
+      clicked = true;
     }
 
     function run() {
-      generateIndex();
-      if (!arrayIndex.hasChildNodes()) {
-        click();
-      } else {
-        run();
+      while (!clicked) {
+        generateIndex();
+        if (!arrayIndex.hasChildNodes()) {
+          _bindEvent();
+          click();
+        }
+        if (clicked) {
+          break;
+        }
       }
     }
 
-    setTimeout(run, 1500);
+    _unbindEvent();
+    setTimeout(run, 1000);
   };
   return { startGame };
 })();
@@ -260,7 +275,7 @@ const infoBoard = (() => {
   // Update player names
   const _updatePlayerNames = (playerOne, playerTwo) => {
     playerOneDom.textContent = `Player 1: ${playerOne.name}`;
-    playerTwoDom.textContent = `Player 2: ${playerTwo.name}`;
+    playerTwoDom.textContent = `Player 2: ${playerTwo.name} [AI]`;
   };
 
   // Update current player
