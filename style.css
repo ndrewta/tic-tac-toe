@@ -120,7 +120,7 @@
 }
 form {
   display: grid;
-  margin-top: -220px;
+  margin-top: -158px;
   gap: 50px;
 }
 
@@ -129,6 +129,16 @@ form > div {
   align-self: center;
   justify-self: center;
 }
+
+form > div:nth-child(4) {
+  margin-top: -10px;
+}
+
+#ai-check {
+  margin-left: 35px;
+  width: 25px;
+}
+
 input {
   padding: 3px;
   width: 150px;

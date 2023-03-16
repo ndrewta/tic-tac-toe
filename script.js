@@ -10,7 +10,7 @@ const gameBoard = (() => {
   let playerOne;
   let playerTwo;
   let gameActive = false;
-  let aiActive = true;
+  let aiActive = false;
 
   // Cache DOM
   const board = document.querySelector("#board");
@@ -33,22 +33,29 @@ const gameBoard = (() => {
         _updateVariables(event);
         _render(currentPlayer, dom);
         _checkBoardState();
-        _switchPlayerMarker();
+        _switchPlayer();
       }
     });
   };
 
   // Bind events
-  const _bindEvent = () => {
+  const _bindEvents = () => {
     board.addEventListener("click", _eventHandler);
+    board.addEventListener("mousedown", _disableMouseEvent);
   };
+
   // Unbind events
   const _unbindEvent = () => {
     board.removeEventListener("click", _eventHandler);
   };
 
+  // Disable mouse drag
+  const _disableMouseEvent = (e) => {
+    e.preventDefault();
+  };
+
   // Switch player turn
-  const _switchPlayerMarker = () => {
+  const _switchPlayer = () => {
     if (gameActive) {
       if (currentPlayer == playerOne) {
         currentPlayer = playerTwo;
@@ -132,14 +139,18 @@ const gameBoard = (() => {
   };
 
   // Game start
-  const startGame = (firstPlayer, secondPlayer) => {
+  const startGame = (firstPlayer, secondPlayer, firstMove, aiCheck) => {
     playerOne = firstPlayer;
     playerTwo = secondPlayer;
-    currentPlayer = playerOne;
+    currentPlayer = firstMove;
     gameActive = true;
+    aiActive = aiCheck;
     infoBoard.updateCurrentPlayer(currentPlayer);
     _resetBoard();
-    _bindEvent();
+    _bindEvents();
+    if (currentPlayer == playerTwo && aiActive) {
+      _aiMove();
+    }
   };
 
   // Game end
@@ -195,7 +206,7 @@ const gameBoard = (() => {
       while (!clicked) {
         generateIndex();
         if (!arrayIndex.hasChildNodes()) {
-          _bindEvent();
+          _bindEvents();
           click();
         }
         if (clicked) {
@@ -214,6 +225,8 @@ const infoBoard = (() => {
   // Setup module variables
   let playerOne;
   let playerTwo;
+  let firstMovePlayer;
+  let aiActive;
 
   //Cache DOM
   const newgameBtn = document.getElementById("newgame-btn");
@@ -224,25 +237,43 @@ const infoBoard = (() => {
   const formDom = document.querySelector(".form");
   const formElem = document.querySelector("form");
   const announcementDom = document.getElementById("announcement");
+  const aiCheckBox = document.getElementById("ai-check");
+  const playerTwoInput = document.getElementById("player-two-name");
 
-  // Bind button event
-  const _bindBtn = () => {
+  // Bind events
+  const _bindEvents = () => {
     newgameBtn.addEventListener("click", _newGame);
     startgameBtn.addEventListener("click", (e) => _startGame(e));
     renameBtn.addEventListener("click", _renamePlayers);
+    aiCheckBox.addEventListener("click", _checkboxToggle);
+  };
+
+  // Checkbox toggle input name
+  const _checkboxToggle = () => {
+    if (aiCheckBox.checked) {
+      playerTwoInput.value = "John [AI]";
+      playerTwoInput.disabled = true;
+    }
+    if (!aiCheckBox.checked) {
+      playerTwoInput.value = "";
+      playerTwoInput.disabled = false;
+    }
   };
 
   // Submit form and start game
   const _startGame = (e) => {
+    playerTwoInput.disabled = false;
     _submitForm(e);
     _resetInfo();
-    gameBoard.startGame(playerOne, playerTwo);
+    _randomFirstPlayer();
+    gameBoard.startGame(playerOne, playerTwo, firstMovePlayer, aiActive);
   };
 
   // New game
   const _newGame = () => {
     _resetInfo();
-    gameBoard.startGame(playerOne, playerTwo);
+    _alternateFirstPlayer();
+    gameBoard.startGame(playerOne, playerTwo, firstMovePlayer, aiActive);
   };
 
   // Submit form
@@ -251,18 +282,39 @@ const infoBoard = (() => {
     const data = new FormData(formElem);
     const playerOneData = data.get("player-one-name");
     const playerTwoData = data.get("player-two-name");
+    const aiCheckData = data.get("ai-check");
     const playerOneObj = Player(playerOneData, "X");
     const playerTwoObj = Player(playerTwoData, "O");
-    _setUpPlayers(playerOneObj, playerTwoObj);
+    _setUpPlayers(playerOneObj, playerTwoObj, aiCheckData);
     _toggleForm();
     formElem.reset();
   };
 
   // Setup players
-  const _setUpPlayers = (firstPlayer, secondPlayer) => {
+  const _setUpPlayers = (firstPlayer, secondPlayer, aiCheck) => {
     playerOne = firstPlayer;
     playerTwo = secondPlayer;
+    aiActive = aiCheck;
     _updatePlayerNames(playerOne, playerTwo);
+  };
+
+  // Random first move player
+  const _randomFirstPlayer = () => {
+    const int = Math.floor(Math.random() * 2);
+    if (int === 0) {
+      firstMovePlayer = playerOne;
+    } else {
+      firstMovePlayer = playerTwo;
+    }
+  };
+
+  // Alternate first move player
+  const _alternateFirstPlayer = () => {
+    if (firstMovePlayer == playerOne) {
+      firstMovePlayer = playerTwo;
+    } else {
+      firstMovePlayer = playerOne;
+    }
   };
 
   // Rename players
@@ -275,7 +327,7 @@ const infoBoard = (() => {
   // Update player names
   const _updatePlayerNames = (playerOne, playerTwo) => {
     playerOneDom.textContent = `Player 1: ${playerOne.name}`;
-    playerTwoDom.textContent = `Player 2: ${playerTwo.name} [AI]`;
+    playerTwoDom.textContent = `Player 2: ${playerTwo.name}`;
   };
 
   // Update current player
@@ -302,6 +354,6 @@ const infoBoard = (() => {
     formDom.classList.toggle("toggle-form");
   };
 
-  _bindBtn();
+  _bindEvents();
   return { updateCurrentPlayer, displayOutcome };
 })();
