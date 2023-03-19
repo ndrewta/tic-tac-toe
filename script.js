@@ -227,11 +227,13 @@ const infoBoard = (() => {
   let playerTwo;
   let firstMovePlayer;
   let aiActive;
+  let playerOneScore = 0;
+  let playerTwoScore = 0;
 
   //Cache DOM
   const newgameBtn = document.getElementById("newgame-btn");
   const startgameBtn = document.getElementById("startgame-btn");
-  const renameBtn = document.getElementById("rename-btn");
+  const resetBtn = document.getElementById("reset-btn");
   const playerOneDom = document.getElementById("player-one");
   const playerTwoDom = document.getElementById("player-two");
   const formDom = document.querySelector(".form");
@@ -239,12 +241,14 @@ const infoBoard = (() => {
   const announcementDom = document.getElementById("announcement");
   const aiCheckBox = document.getElementById("ai-check");
   const playerTwoInput = document.getElementById("player-two-name");
+  const playerOneScoreDom = document.getElementById("player-one-score");
+  const playerTwoScoreDom = document.getElementById("player-two-score");
 
   // Bind events
   const _bindEvents = () => {
     newgameBtn.addEventListener("click", _newGame);
     startgameBtn.addEventListener("click", (e) => _startGame(e));
-    renameBtn.addEventListener("click", _renamePlayers);
+    resetBtn.addEventListener("click", _resetGame);
     aiCheckBox.addEventListener("click", _checkboxToggle);
   };
 
@@ -264,7 +268,8 @@ const infoBoard = (() => {
   const _startGame = (e) => {
     playerTwoInput.disabled = false;
     _submitForm(e);
-    _resetInfo();
+    _resetScores();
+    _renderScores();
     _randomFirstPlayer();
     gameBoard.startGame(playerOne, playerTwo, firstMovePlayer, aiActive);
   };
@@ -274,6 +279,9 @@ const infoBoard = (() => {
     _resetInfo();
     _alternateFirstPlayer();
     gameBoard.startGame(playerOne, playerTwo, firstMovePlayer, aiActive);
+    if (playerOneScore == 5 || playerTwoScore == 5) {
+      _resetScores();
+    }
   };
 
   // Submit form
@@ -317,8 +325,8 @@ const infoBoard = (() => {
     }
   };
 
-  // Rename players
-  const _renamePlayers = () => {
+  // Reset players
+  const _resetGame = () => {
     _resetInfo();
     _toggleForm();
     announcementDom.textContent = "Tic Tac Toe";
@@ -335,13 +343,48 @@ const infoBoard = (() => {
     announcementDom.textContent = `${currentPlayer.name}'s turn!`;
   };
 
-  // Display Winner
+  // Display outcome
   const displayOutcome = (winner) => {
     if (winner) {
-      announcementDom.textContent = `${winner.name} is the winner!`;
+      announcementDom.textContent = `${winner.name} won this round!`;
+      _updateScore(winner);
     } else {
       announcementDom.textContent = "Game tie!";
     }
+  };
+
+  // Update scores
+  const _updateScore = (winner) => {
+    if (winner == playerOne) {
+      playerOneScore += 1;
+    } else if (winner == playerTwo) {
+      playerTwoScore += 1;
+    }
+    _checkScores();
+  };
+
+  // Check overall score
+  const _checkScores = () => {
+    if (playerOneScore == 5) {
+      announcementDom.textContent = `${playerOne.name} is the winner!`;
+    } else if (playerTwoScore == 5) {
+      announcementDom.textContent = `${playerTwo.name} is the winner!`;
+    }
+    _renderScores();
+  };
+
+  // Render scores
+  const _renderScores = () => {
+    playerOneScoreDom.textContent = playerOneScore;
+    playerTwoScoreDom.textContent = playerTwoScore;
+  };
+
+  // Reset scores
+  const _resetScores = () => {
+    playerOneScore = 0;
+    playerTwoScore = 0;
+
+    _renderScores();
   };
 
   // Reset infoboard
