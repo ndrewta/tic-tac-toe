@@ -243,6 +243,12 @@ const infoBoard = (() => {
   const playerTwoInput = document.getElementById("player-two-name");
   const playerOneScoreDom = document.getElementById("player-one-score");
   const playerTwoScoreDom = document.getElementById("player-two-score");
+  const playerOneScoreBorder = document.getElementsByClassName(
+    "score-border playerone"
+  );
+  const playerTwoScoreBorder = document.getElementsByClassName(
+    "score-border playertwo"
+  );
 
   // Bind events
   const _bindEvents = () => {
@@ -271,6 +277,8 @@ const infoBoard = (() => {
     _resetScores();
     _renderScores();
     _randomFirstPlayer();
+    _disableNewGameBtn();
+    _removeHighlight();
     gameBoard.startGame(playerOne, playerTwo, firstMovePlayer, aiActive);
   };
 
@@ -278,10 +286,22 @@ const infoBoard = (() => {
   const _newGame = () => {
     _resetInfo();
     _alternateFirstPlayer();
+    _disableNewGameBtn();
     gameBoard.startGame(playerOne, playerTwo, firstMovePlayer, aiActive);
     if (playerOneScore == 5 || playerTwoScore == 5) {
       _resetScores();
+      _removeHighlight();
     }
+  };
+
+  // Disable new game button
+  const _disableNewGameBtn = () => {
+    newgameBtn.disabled = true;
+  };
+
+  // Enable new game button
+  const _enableNewGameBtn = () => {
+    newgameBtn.disabled = false;
   };
 
   // Submit form
@@ -351,6 +371,7 @@ const infoBoard = (() => {
     } else {
       announcementDom.textContent = "Game tie!";
     }
+    _enableNewGameBtn();
   };
 
   // Update scores
@@ -365,12 +386,31 @@ const infoBoard = (() => {
 
   // Check overall score
   const _checkScores = () => {
+    let winner;
     if (playerOneScore == 5) {
       announcementDom.textContent = `${playerOne.name} is the winner!`;
+      winner = playerOne;
     } else if (playerTwoScore == 5) {
       announcementDom.textContent = `${playerTwo.name} is the winner!`;
+      winner = playerTwo;
     }
+    _highlightWinner(winner);
     _renderScores();
+  };
+
+  // Highlight winner
+  const _highlightWinner = (winner) => {
+    if (winner == playerOne) {
+      playerOneScoreBorder[0].classList.add("score-highlight");
+    } else if (winner == playerTwo) {
+      playerTwoScoreBorder[0].classList.add("score-highlight");
+    }
+  };
+
+  // Remove highlight winner
+  const _removeHighlight = () => {
+    playerOneScoreBorder[0].classList.remove("score-highlight");
+    playerTwoScoreBorder[0].classList.remove("score-highlight");
   };
 
   // Render scores
