@@ -28,14 +28,16 @@ const gameBoard = (() => {
   // Event handler
   const _eventHandler = (e) => {
     const event = e.target;
-    arrayDom.forEach((dom) => {
-      if (event.id === dom.id && !dom.hasChildNodes()) {
-        _updateVariables(event);
-        _render(currentPlayer, dom);
-        _checkBoardState();
-        _switchPlayer();
-      }
-    });
+    if (gameActive) {
+      arrayDom.forEach((dom) => {
+        if (event.id === dom.id && dom.innerHTML == " ") {
+          _updateVariables(event);
+          _render(currentPlayer, dom);
+          _checkBoardState();
+          _switchPlayer();
+        }
+      });
+    }
   };
 
   // Bind events
@@ -56,17 +58,15 @@ const gameBoard = (() => {
 
   // Switch player turn
   const _switchPlayer = () => {
-    if (gameActive) {
-      if (currentPlayer == playerOne) {
-        currentPlayer = playerTwo;
-        infoBoard.updateCurrentPlayer(currentPlayer);
-        if (aiActive) {
-          _aiMove();
-        }
-      } else {
-        currentPlayer = playerOne;
-        infoBoard.updateCurrentPlayer(currentPlayer);
+    if (currentPlayer == playerOne) {
+      currentPlayer = playerTwo;
+      infoBoard.updateCurrentPlayer(currentPlayer);
+      if (aiActive) {
+        _aiMove();
       }
+    } else {
+      currentPlayer = playerOne;
+      infoBoard.updateCurrentPlayer(currentPlayer);
     }
   };
 
@@ -130,11 +130,8 @@ const gameBoard = (() => {
     o.length = 0;
     tie = true;
     arrayDom.forEach((dom) => {
-      if (dom.hasChildNodes()) {
-        const child = dom.firstChild;
-        dom.removeChild(child);
-        dom.removeAttribute("class", "higlight");
-      }
+      dom.innerHTML = " ";
+      dom.removeAttribute("class", "higlight");
     });
   };
 
@@ -162,12 +159,16 @@ const gameBoard = (() => {
     _unbindEvent();
   };
 
+  // Reset game
+  const resetGame = () => {
+    gameActive = false;
+    _resetBoard();
+  };
+
   // Render board
   const _render = (currentPlayer, dom, arr) => {
     const renderMarker = function (currentPlayer, dom) {
-      const elem = document.createElement("p");
-      elem.textContent = currentPlayer.marker;
-      dom.appendChild(elem);
+      dom.innerHTML = currentPlayer.marker;
     };
 
     const highlightSquare = function (arr) {
@@ -198,15 +199,15 @@ const gameBoard = (() => {
     }
 
     function click() {
-      arrayIndex.click();
       clicked = true;
+      arrayIndex.click();
     }
 
     function run() {
+      _bindEvents();
       while (!clicked) {
         generateIndex();
-        if (!arrayIndex.hasChildNodes()) {
-          _bindEvents();
+        if (arrayIndex.innerHTML == " ") {
           click();
         }
         if (clicked) {
@@ -216,9 +217,9 @@ const gameBoard = (() => {
     }
 
     _unbindEvent();
-    setTimeout(run, 1000);
+    setTimeout(run, 500);
   };
-  return { startGame };
+  return { startGame, resetGame };
 })();
 
 const infoBoard = (() => {
@@ -349,6 +350,7 @@ const infoBoard = (() => {
   const _resetGame = () => {
     _resetInfo();
     _toggleForm();
+    gameBoard.resetGame();
     announcementDom.textContent = "Tic Tac Toe";
   };
 
